@@ -13,7 +13,7 @@ class CategoryBase(SQLModel):
 class Category(CategoryBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
-    # itemtypes: list["ItemType"] = Relationship(back_populates="category")
+    itemtypes: list["ItemType"] = Relationship(back_populates="category")
 
 
 class CategoryCreate(CategoryBase):
@@ -34,7 +34,7 @@ class ItemTypeBase(SQLModel):
     barcode: int | None = Field(unique=True)
     weight: float | None
 
-    # category_id: int | None = Field(default=None, foreign_key="category.id")
+    category_id: int | None = Field(default=None, foreign_key="category.id")
 
 
 class ItemType(ItemTypeBase, table=True):
@@ -45,9 +45,9 @@ class ItemType(ItemTypeBase, table=True):
     #weight: float | None
 
     #category_id: int | None = Field(default=None, foreign_key="category.id")
-    # category: Category | None = Relationship(back_populates="itemtypes")
+    category: Category | None = Relationship(back_populates="itemtypes")
     #
-    # items: list["Item"] = Relationship(back_populates="itemtype")
+    items: list["Item"] = Relationship(back_populates="itemtype")
 
 
 class ItemTypePublic(ItemTypeBase):
@@ -71,8 +71,8 @@ class LocationBase(SQLModel):
 class Location(LocationBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     # name: str
+    units: list["Unit"] = Relationship(back_populates="location")
 
-    # units: list["Unit"] = Relationship(back_populates="location")
 
 class LocationPublic(LocationBase):
     id: int
@@ -96,7 +96,7 @@ class UnitBase(SQLModel):
     # id: int | None = Field(default=None, primary_key=True)
     name: str
 
-    # location_id: int | None = Field(default=None, foreign_key="location.id")
+    location_id: int | None = Field(default=None, foreign_key="location.id")
     # location: Location | None = Relationship(back_populates="units")
     #
     # items: list["Item"] = Relationship(back_populates="unit")
@@ -107,9 +107,9 @@ class Unit(UnitBase, table=True):
     # name: str
 
     # location_id: int | None = Field(default=None, foreign_key="location.id")
-    # location: Location | None = Relationship(back_populates="units")
+    location: Location | None = Relationship(back_populates="units")
     #
-    # items: list["Item"] = Relationship(back_populates="unit")
+    items: list["Item"] = Relationship(back_populates="unit")
 
 class UnitPublic(UnitBase):
     id: int
@@ -126,10 +126,10 @@ class ItemBase(SQLModel):
     date_added: datetime.datetime
     date_removed: datetime.datetime
 
-    # itemtype_id: int = Field(foreign_key="itemtype.id")
+    itemtype_id: int = Field(foreign_key="itemtype.id")
     # itemtype: ItemType | None = Relationship(back_populates="items")
     #
-    # unit_id: int = Field(foreign_key="unit.id")
+    unit_id: int = Field(foreign_key="unit.id")
     # unit: Unit | None = Relationship(back_populates="items")
 
 
@@ -137,10 +137,10 @@ class Item(ItemBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
     # itemtype_id: int = Field(foreign_key="itemtype.id")
-    # itemtype: ItemType | None = Relationship(back_populates="items")
+    itemtype: ItemType | None = Relationship(back_populates="items")
     #
     # unit_id: int = Field(foreign_key="unit.id")
-    # unit: Unit | None = Relationship(back_populates="items")
+    unit: Unit | None = Relationship(back_populates="items")
 
 
 class ItemPublic(ItemBase):
@@ -170,15 +170,27 @@ class ItemUpdate(ItemBase):
 
 
 
+class CategoryPublicWithRelations(CategoryPublic):
+    itemtypes: list[ItemTypePublic] = []
 
 
+class ItemTypePublicWithRelations(ItemTypePublic):
+    category: CategoryPublic | None = None
+    items: list[ItemPublic] = []
 
 
+class LocationPublicWithRelations(LocationPublic):
+    units: list[UnitPublic] = []
 
 
+class UnitPublicWithRelations(UnitPublic):
+    location: LocationPublic | None = None
+    items: list[ItemPublic] = []
 
 
-
+class ItemPublicWithRelations(ItemPublic):
+    itemtype: ItemTypePublic | None = None
+    unit: UnitPublic | None = None
 
 
 

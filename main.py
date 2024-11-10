@@ -1,14 +1,13 @@
-from typing import Union
-
 from fastapi import FastAPI, HTTPException, Query, Depends
-from sqlmodel import Session, select
-
-from inventory.models import create_db_and_tables, engine
 from inventory.models import Category, CategoryCreate, CategoryPublic, CategoryUpdate
-from inventory.models import ItemType, ItemTypeCreate, ItemTypePublic, ItemTypeUpdate
 from inventory.models import Item, ItemCreate, ItemPublic, ItemUpdate
+from inventory.models import ItemType, ItemTypeCreate, ItemTypePublic, ItemTypeUpdate
+from inventory.models import ItemTypePublicWithRelations, ItemPublicWithRelations, UnitPublicWithRelations, \
+    CategoryPublicWithRelations, LocationPublicWithRelations
 from inventory.models import Location, LocationCreate, LocationPublic, LocationUpdate
 from inventory.models import Unit, UnitCreate, UnitPublic, UnitUpdate
+from inventory.models import create_db_and_tables, engine
+from sqlmodel import Session, select
 
 app = FastAPI()
 
@@ -46,7 +45,7 @@ def read_categories(*, session: Session = Depends(get_session), offset: int = 0,
     return category
 
 
-@app.get("/category/{category_id}", response_model=CategoryPublic)
+@app.get("/category/{category_id}", response_model=CategoryPublicWithRelations)
 def read_category(*, session: Session = Depends(get_session), category_id: int):
     category = session.get(Category, category_id)
     if not category:
@@ -87,12 +86,12 @@ def create_itemtype(*, session: Session = Depends(get_session), itemtype: ItemTy
 
 
 @app.get("/itemtype/", response_model=list[ItemTypePublic])
-def read_categories(*, session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
+def read_itemtypes(*, session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
     itemtype = session.exec(select(ItemType).offset(offset).limit(limit)).all()
     return itemtype
 
 
-@app.get("/itemtype/{itemtype_id}", response_model=ItemTypePublic)
+@app.get("/itemtype/{itemtype_id}", response_model=ItemTypePublicWithRelations)
 def read_itemtype(*, session: Session = Depends(get_session), itemtype_id: int):
     itemtype = session.get(ItemType, itemtype_id)
     if not itemtype:
@@ -134,12 +133,12 @@ def create_item(*, session: Session = Depends(get_session), item: ItemCreate):
 
 
 @app.get("/item/", response_model=list[ItemPublic])
-def read_categories(*, session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
+def read_items(*, session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
     item = session.exec(select(Item).offset(offset).limit(limit)).all()
     return item
 
 
-@app.get("/item/{item_id}", response_model=ItemPublic)
+@app.get("/item/{item_id}", response_model=ItemPublicWithRelations)
 def read_item(*, session: Session = Depends(get_session), item_id: int):
     item = session.get(Item, item_id)
     if not item:
@@ -181,12 +180,12 @@ def create_location(*, session: Session = Depends(get_session), location: Locati
 
 
 @app.get("/location/", response_model=list[LocationPublic])
-def read_categories(*, session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
+def read_locations(*, session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
     location = session.exec(select(Location).offset(offset).limit(limit)).all()
     return location
 
 
-@app.get("/location/{location_id}", response_model=LocationPublic)
+@app.get("/location/{location_id}", response_model=LocationPublicWithRelations)
 def read_location(*, session: Session = Depends(get_session), location_id: int):
     location = session.get(Location, location_id)
     if not location:
@@ -228,12 +227,12 @@ def create_unit(*, session: Session = Depends(get_session), unit: UnitCreate):
 
 
 @app.get("/unit/", response_model=list[UnitPublic])
-def read_categories(*, session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
+def read_units(*, session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
     unit = session.exec(select(Unit).offset(offset).limit(limit)).all()
     return unit
 
 
-@app.get("/unit/{unit_id}", response_model=UnitPublic)
+@app.get("/unit/{unit_id}", response_model=UnitPublicWithRelations)
 def read_unit(*, session: Session = Depends(get_session), unit_id: int):
     unit = session.get(Unit, unit_id)
     if not unit:
